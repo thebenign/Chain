@@ -1,4 +1,5 @@
 # Unnest Game Development Suit
+![alt text](https://github.com/thebenign/unnest/blob/master/icons/banner.png "Banner Image")
 
 ## What is it?
 Unnest is a rapid game development engine built in Lua for Love2D.
