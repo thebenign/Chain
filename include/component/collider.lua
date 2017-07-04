@@ -215,14 +215,15 @@ function collider.draw()
     local cam_x = math.floor(collider.cam.x)
     local cam_y = math.floor(collider.cam.y)
     local floor = math.floor
-    if collider.env.debug then
+    --if collider.env.debug then
         for y = 0, collider.w-1 do
             for x = 0, collider.w-1 do
                 love.graphics.print(collider.cell[y*collider.w+x+1] and collider.cell[y*collider.w+x+1].n or 0,x*collider.size-cam_x, y*collider.size-cam_y)
                 love.graphics.rectangle("line", x*collider.size-cam_x, y*collider.size-cam_y, collider.size, collider.size)
             end
         end
-    end
+    --end
+    love.graphics.setColor(255,255,255,255)
 end
 
 return collider

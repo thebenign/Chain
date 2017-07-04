@@ -18,7 +18,7 @@ function comp.draw()
     end
 end
 
-function comp:add(entity, z)
+function comp:add(z)
 
     local new_list = {}
     local found = false

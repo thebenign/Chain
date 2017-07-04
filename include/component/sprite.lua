@@ -1,105 +1,98 @@
 local sprite = {
-    zenum = 0,
-    zlist = {},
-    image_table = require("image"),
-    batch_table = require("map"),
-    camera = require("camera")
-    }
+    image = require("compositor").image,
+    remove = require("compositor").remove
+}
+
 sprite.__index = sprite
 
+local lgDraw = love.graphics.draw
+local camera = require("camera")
+
 function sprite.give(entity)
+    
     local s = {
-        img = sprite.image_table.null,
+        entity = entity,
         color = {255,255,255,255},
         scale = 1, 
         rot = 0, 
         origin_x = 0, 
-        origin_y = 0
+        origin_y = 0,
+        relative = true,
+        quad_frame = 1,
+        quad_offset = 0,
+        quad_range = 0,
+        animate = false,
+        anim_t = 1,
+        anim_dt = 0,
+        anim_run = true
         }
-    setmetatable(s, sprite)
-    return s
+    return setmetatable(s, sprite)
 end
 
-function sprite:setBatch(batch)
-    self.img = sprite.batch_table.map_batch
+function sprite:set(img, z)
+    self.img = sprite.image[img]
+    self.z = z
 end
 
-function sprite:setSprite(img)
-    self.img = sprite.image_table[img]
-end
-
-function sprite:setOrigin(x, y)
-    self.origin_x, self.origin_y = x, y
-end
-
-function sprite.remove(id)
-    for i = id, sprite.zenum-1 do
-        sprite.zlist[i] = sprite.zlist[i+1]
-        sprite.zlist[i].sprite.id = sprite.zlist[i].sprite.id - 1
+function sprite:setOrigin(...)
+    local arg = {...}
+    assert(arg and #arg < 3, 'Wrong number of arguments to sprite:setOrigin(). Expected either the string "center" or x, y')
+    if arg[1] == "center" then
+        self.origin_x = self.img:getWidth()/2
+        self.origin_y = self.img:getHeight()/2
+    elseif type(arg[1]) == "number" and type(arg[2]) == "number" then
+        self.origin_x = arg[1]
+        self.origin_y = arg[2]
+    else
+        error("sprite:setOrigin() failed with an unknown cause.")
     end
-    sprite.zenum = sprite.zenum - 1
-end
-
-function sprite:register(ent, z)
-    ent.sprite.z = z
-    self:addZ(ent, z)
-end
-
-function sprite:addZ(entity, z)
-    entity.sprite.z = z
-    local new_list = {}
-    local found = false
     
-    for i = 1, sprite.zenum do
-        if z < sprite.zlist[i].sprite.z or found then
-            new_list[i] = sprite.zlist[i - (found and 1 or 0)]
-            new_list[i].sprite.id = i
-        else
-            new_list[i] = entity
-            self.id = i
-            found = true
+end
+
+function sprite:setScale(s)
+    self.scale = s
+end
+
+function sprite:setRotation(r)
+    self.rot = r
+end
+
+function sprite:activate()
+    assert(self.img, "Attempt to activate a sprite component which has no image. Use sprite:set() first.")
+    sprite.addDrawable(self)
+end
+    
+function sprite:update()
+    if self.animate and self.anim_run then
+        self.anim_dt = self.anim_dt + 1
+        if self.anim_dt > self.anim_t then
+            local frame = self.quad_frame  -- huh?
+            
+            self.anim_dt = 0
         end
     end
-    sprite.zenum = sprite.zenum + 1
-    if not found then
-        new_list[sprite.zenum] = entity
-        entity.sprite.id = sprite.zenum
-    else
-        new_list[sprite.zenum] = sprite.zlist[sprite.zenum - 1]
-        new_list[sprite.zenum].sprite.id = sprite.zenum
-    end
-    
-    sprite.zlist = new_list
-    collectgarbage()
-end
-
-function sprite.update(entity)
 end
 
 function sprite:destroy()
-    sprite.remove(self.sprite.id)
+    sprite.remove(self.id)
     return true
 end
 
-function sprite.draw()
-    local entity
-    for i = sprite.zenum, 1, -1 do
-        entity = sprite.zlist[i]
-        love.graphics.setColor(255,255,255,255)
-        if entity.sprite.quad then
-
-        else
-            love.graphics.draw(
-                entity.sprite.img,
-                math.floor(entity.position.x-(entity.position.relative and sprite.camera.x or 0)),
-                math.floor(entity.position.y-(entity.position.relative and sprite.camera.y or 0)), 
-                entity.sprite.rot, 
-                entity.sprite.scale, 
-                entity.sprite.scale, 
-                entity.sprite.origin_x, 
-                entity.sprite.origin_y
-            )
-        end
+function sprite:draw()
+    local x_off = self.relative and camera.x or 0
+    local y_off = self.relative and camera.y or 0
+    if not self.quad then
+        lgDraw(
+            self.img, 
+            self.entity.position.x-x_off,
+            self.entity.position.y-y_off, 
+            self.rot,
+            self.scale,
+            self.scale,
+            self.origin_x,
+            self.origin_y
+        )
+    else
     end
 end
 

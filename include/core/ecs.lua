@@ -19,16 +19,19 @@ local entity = setmetatable({
     enum = 0,
     list = {},
     component = {},
-    compositor = require("compositor"),
-    dpairs = require("dpairs")
+    env = require("env")
     
     }, {__call = function(t, name) return t.new(name) end})
 
 entity.__index = entity
 
+local compositor = require("compositor")
+local dpairs = require("dpairs")
+
 -- Load all the components
-for i, file in entity.dpairs("/include/component/") do
+for i, file in dpairs("/include/component/") do
     entity.component[file] = require(file)
+    setmetatable(entity.component[file], entity)
 end
 
 function entity.find(id)
@@ -46,7 +49,7 @@ end
 -- This is the function which creates a new instance of an entity.
 -- There must be an entity script called _name.lua_
 function entity.new(name,...)
-    local reg_ent = {_draw_count = 0, _drawable = {}, id = name}
+    local reg_ent = {id = name}
     local arg = {...}
     local parent = arg[1] or nil
     
@@ -92,11 +95,10 @@ function entity:has(...)
     end
 end
 
-function entity:addDrawable(typeof)
-    --print(typeof)
-    self._draw_count = self._draw_count + 1
-    self._drawable[self._draw_count] = typeof
-    entity.compositor.add(typeof, 1)
+function entity:addDrawable()
+    --self._draw_count = self._draw_count + 1
+    --self._drawable[self._draw_count] = typeof
+    compositor.add(self, self.z)
 end
 
 function entity:setID(id)
@@ -146,10 +148,10 @@ end
 -- Call this function from your love.draw()
 -- It handles all the drawable compositing so you don't have to.
 function entity.draw()
-    entity.component.sprite.draw()
-    entity.component.compositor.draw()
-    entity.component.particle.draw()
-    entity.component.gui.draw()
+    if entity.env.full_redraw then love.graphics.clear(love.graphics.getBackgroundColor()) end
+    compositor.draw()
+    --entity.component.particle.draw()
+    --entity.component.gui.draw()
     entity.component.collider.draw()
 end
 
