@@ -1,5 +1,5 @@
 # Chain Game Development Suite
-![Banner](https://github.com/thebenign/unnest/blob/master/icons/banner.png "Banner Image")
+![Banner](chain/icons/banner.png "Banner Image")
 
 ## What is it?
 Chain is a rapid game development engine built in Lua for Love2D.
