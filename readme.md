@@ -18,15 +18,13 @@ There are no constraints on what an entity does.
 This script will create a new entity with a sprite and some features we might like to have in a game object.
 First we'll look at a complete object script, then we'll break it down
 ```Lua
-return function(entity) 
-    local ball = entity.register()
+    local ball = chain.register()
     
     ball:has("sprite", "position", "velocity", "control")
     
     ball.sprite:set("ball", 3)
     ball.sprite:setOrigin("center")
     ball.sprite:setScale(.25)
-    ball.sprite:activate()
     
     ball.position:set(300, 300)
     
@@ -39,5 +37,4 @@ return function(entity)
     end)
     
     return ball
-end
 ```
