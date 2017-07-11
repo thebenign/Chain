@@ -1,12 +1,12 @@
-local sprite = {
-    image = require("compositor").image,
-    remove = require("compositor").remove
-}
+local sprite = {}
 
 sprite.__index = sprite
 
 local lgDraw = love.graphics.draw
 local camera = require("camera")
+local image = require("compositor").image
+local remove = require("compositor").remove
+
 
 function sprite.give(entity)
     
@@ -24,14 +24,16 @@ function sprite.give(entity)
         animate = false,
         anim_t = 1,
         anim_dt = 0,
-        anim_run = true
+        anim_run = true,
+        active = true
         }
     return setmetatable(s, sprite)
 end
 
 function sprite:set(img, z)
-    self.img = sprite.image[img]
+    self.img = image[img]
     self.z = z
+    sprite.addDrawable(self)
 end
 
 function sprite:setOrigin(...)
@@ -67,14 +69,13 @@ function sprite:update()
         self.anim_dt = self.anim_dt + 1
         if self.anim_dt > self.anim_t then
             local frame = self.quad_frame  -- huh?
-            
             self.anim_dt = 0
         end
     end
 end
 
 function sprite:destroy()
-    sprite.remove(self.id)
+    remove(self.sprite.id)
     return true
 end
 

@@ -13,13 +13,35 @@ end
 
 
 function comp.draw()
-    for i = comp.count, 1, -1 do
+    --[[for i = comp.count, 1, -1 do
         comp.list[i]:draw()
-    end
+    end]]
 end
 
-function comp:add(z)
-
+function comp:add()
+    
+    local found = false
+    
+    for i = 1, comp.count do
+        if comp.list[i].z < self.z then
+            found = i
+            break
+        end
+    end
+    if found then
+        for i = comp.count, found , -1 do
+            comp.list[i+1] = comp.list[i]
+        end
+        self.id = found
+        comp.list[found] = self
+    else
+        self.id = comp.count+1
+        comp.list[comp.count+1] = self
+    end
+    
+    comp.count = comp.count + 1
+    
+    --[[
     local new_list = {}
     local found = false
 
@@ -41,8 +63,8 @@ function comp:add(z)
         new_list[comp.count] = comp.list[comp.count - 1]
         new_list[comp.count].id = comp.count
     end
-
     comp.list = new_list
+    ]]
 end
 
 

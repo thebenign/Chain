@@ -19,14 +19,14 @@ local entity = setmetatable({
     enum = 0,
     list = {},
     component = {},
-    env = require("env")
-    
+    entity = {},
     }, {__call = function(t, name) return t.new(name) end})
 
 entity.__index = entity
 
 local compositor = require("compositor")
 local dpairs = require("dpairs")
+local env = require("env")
 
 -- Load all the components
 for i, file in dpairs("/include/component/") do
@@ -64,11 +64,14 @@ function entity.new(name,...)
             end
         }, entity)
     
-    local ent = require(name)(stack_back)
-    
+    --local ent = require(name)(stack_back)
+    local fenv = getfenv()
+    fenv._id = name
+
+    local ent = entity.entity[name]()
     entity.enum = entity.enum + 1
     entity.list[entity.enum] = ent
-    ent._id = name
+
 
     return ent
 end
@@ -88,8 +91,10 @@ end
 function entity:has(...)
     local args = {...}
     self._comp_enum = #args
+    local fenv = getfenv()
+    
     for i, v in ipairs(args) do
-        assert(entity.component[v], 'An entity tried to acquire component "'..v..'" which does not exist')
+        assert(entity.component[v], '"'..fenv._id..'" tried to acquire component "'..v..'" which does not exist')
         self[v] = entity.component[v].give(self)
         self[i] = v
     end
@@ -98,7 +103,7 @@ end
 function entity:addDrawable()
     --self._draw_count = self._draw_count + 1
     --self._drawable[self._draw_count] = typeof
-    compositor.add(self, self.z)
+    compositor.add(self)
 end
 
 function entity:setID(id)
@@ -113,18 +118,25 @@ end
 -- If an entity requests destruction, it is flagged as non-existant, so you don't
 -- have to worry about it continuing to do things after you destroy it,
 -- even if the components are still cleaning up.
-function entity.update(alpha)
+function entity.update()
     local ent, comp, ak
     for i = entity.enum, 1, -1 do
         ent = entity.list[i]
         for c = 1, ent._comp_enum do
-            comp = entity.component[ent[c]]
-            comp.update(ent, alpha)
+            --comp = entity.component[ent[c]]
+            --comp.update(ent)
+            
+            if rawget(entity.component[ent[c]], "update") then
+                entity.component[ent[c]].update(ent)
+            end
+            
         end
+        
         if ent._d then
-            for c = 1, entity.list[i]._comp_enum do
+            local enum = entity.list[i]._comp_enum
+            for c = enum, 1, -1 do
                 comp = entity.component[ent[c]]
-                if comp.destroy then
+                if rawget(comp, "destroy") then
                     ak = comp.destroy(ent)
                     if ak then ent:removeComponent(c) end
                 else
@@ -134,25 +146,50 @@ function entity.update(alpha)
             if ent._comp_enum == 0 then
                 entity.list[i] = entity.list[entity.enum]
                 entity.enum = entity.enum - 1
-                --ent = nil
             end
         end
+        
     end
 end
 
 function entity:removeComponent(comp)
     self[comp] = self[self._comp_enum]
     self._comp_enum = self._comp_enum - 1
+    
 end
 
 -- Call this function from your love.draw()
 -- It handles all the drawable compositing so you don't have to.
 function entity.draw()
-    if entity.env.full_redraw then love.graphics.clear(love.graphics.getBackgroundColor()) end
+    if env.full_redraw then love.graphics.clear(love.graphics.getBackgroundColor()) end
     compositor.draw()
     --entity.component.particle.draw()
     --entity.component.gui.draw()
     entity.component.collider.draw()
+    love.graphics.print(entity.enum, 32, 32)
+    love.graphics.print(love.timer.getFPS(), 32, 64)
 end
+
+-- Following code imports the game entities. They are not run until _new_ is called.
+
+local entity_env = setmetatable({
+        chain = {
+            register = entity.register,
+            find = entity.find,
+            new = entity.new
+        }
+    }, {__index = _G})
+
+for i, file in dpairs("include/entity/") do
+    
+    local func, err
+    func, err = loadfile("include/entity/"..file..".lua")
+    if err then print(err) end
+    
+    setfenv(func, entity_env)
+    
+    entity.entity[file] = func
+end
+
 
 return entity

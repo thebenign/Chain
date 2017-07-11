@@ -1,7 +1,7 @@
-local velocity = {
-    trig = require("trig")
-    }
+local velocity = {}
 velocity.__index = velocity
+
+local trig = require("trig")
 
 function velocity.give(entity)
     return setmetatable({dir = 0, mag = 0, fric = 0, max = 0}, velocity)
@@ -21,8 +21,8 @@ function velocity:add(dir, mag)
     
 end
 
-function velocity:update(alpha)
-        self.position.x, self.position.y = velocity.trig.translate(self.position.x, self.position.y, self.velocity.dir, self.velocity.mag*alpha)
+function velocity:update()
+        self.position.x, self.position.y = trig.translate(self.position.x, self.position.y, self.velocity.dir, self.velocity.mag)
         self.velocity.mag = self.velocity.mag - ((self.velocity.mag > self.velocity.fric) and self.velocity.fric or 0)
         if self.velocity.mag < self.velocity.fric then self.velocity.mag = 0 end
 end

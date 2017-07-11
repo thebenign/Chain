@@ -5,9 +5,6 @@ function position.give(entity)
     return setmetatable({x = 0, y = 0, a = 0, relative = true}, position)
 end
 
-function position.update()
-end
-
 function position:setRelative(bool)
     self.relative = bool
 end

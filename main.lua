@@ -20,14 +20,21 @@ function love.update(dt)
     env.dt = env.dt + dt
     if env.dt >= env.t then
         world.update()
-        entity.update(1)
+        entity.update()
         env.dt = env.dt - env.t
+        if love.mouse.isDown(1) then
+            for i = 1, 5 do
+            local ball = entity.new("ball")
+            ball.position:set(love.mouse.getPosition())
+            end
+        end
+        
     end
 end
 
 function love.mousepressed(x, y, b, t)
-    local ball = entity.new("ball")
-    ball.position:set(x-16, y-16)
+    --local ball = entity.new("ball")
+    --ball.position:set(x, y)
 end
 
 

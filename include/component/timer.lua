@@ -43,10 +43,10 @@ function timer:new(t, loop)
     -- Use the reference table's array part to contain the instance objects.
     self[self.count] = 
     setmetatable({
-            t = t,
+            t = t or 60,
             dt = 0,
             call = function() end,
-            loop = loop,
+            loop = loop or false,
             run = true
         }, instance_mt
     )
