@@ -4,7 +4,7 @@ local env = {
     dt = 0,   -- delta time incrementer
     alpha = 0, -- reserved for future use
     debug = false, -- enable debug mode
-    background_color = {150, 150, 150},
+    background_color = {.8,.8,.8},
     full_redraw = true -- enable complete erasure of canvas on every frame. Turning this off could improve frame rate, but may lead to graphical artifacts if you are not covering the entire game canvas with graphics on every frame.
 }
 

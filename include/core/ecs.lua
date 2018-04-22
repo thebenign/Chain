@@ -34,6 +34,8 @@ for i, file in dpairs("/include/component/") do
     setmetatable(entity.component[file], entity)
 end
 
+
+-- Creates and returns a list of all entities with _id matching id
 function entity.find(id)
     local list = {}
     local found = false
@@ -165,9 +167,9 @@ function entity.draw()
     compositor.draw()
     --entity.component.particle.draw()
     --entity.component.gui.draw()
-    entity.component.collider.draw()
-    love.graphics.print(entity.enum, 32, 32)
-    love.graphics.print(love.timer.getFPS(), 32, 64)
+    --entity.component.collider.draw()
+    love.graphics.print("Entities: "..entity.enum, 32, 32)
+    love.graphics.print("FPS: "..love.timer.getFPS(), 32, 48)
 end
 
 -- Following code imports the game entities. They are not run until _new_ is called.

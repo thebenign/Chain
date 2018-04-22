@@ -13,9 +13,9 @@ end
 
 
 function comp.draw()
-    --[[for i = comp.count, 1, -1 do
+    for i = comp.count, 1, -1 do
         comp.list[i]:draw()
-    end]]
+    end
 end
 
 function comp:add()
