@@ -6,8 +6,11 @@ local world = {
     w = 2600,
     h = 2600,
     state = 0,
-    state_script = {}
+    state_script = {},
+    default_font = love.graphics.newFont("resources/fonts/KenVector Future.ttf", 12)
 }
+
+love.graphics.setFont(world.default_font)
 
 function world.changeState(state)
     world.state = state

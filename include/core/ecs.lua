@@ -15,25 +15,41 @@
     way you want them to when you're not used to it.
 
 ]]
+
+-- Love2D version 11 is required
+local ma, mi, re, code = love.getVersion()
+if ma < 11 then
+  error("The version of Love2D installed is lower than 11.0.0 but Chain requires version 11.0.0 or higher. Update your version of Love2D.", 0)
+end
+
+-- Construct the core
 local entity = setmetatable({
     enum = 0,
     list = {},
     component = {},
     entity = {},
+    data = {},
     }, {__call = function(t, name) return t.new(name) end})
 
 entity.__index = entity
 
+-- Load extra core modules
 local compositor = require("compositor")
 local dpairs = require("dpairs")
 local env = require("env")
 
--- Load all the components
+-- Load data types
+entity.data.map = require("data_map")
+entity.data.spriteDeck = require("sprite_deck")
+local utf8 = require("utf8")
+
+-- Load components
 for i, file in dpairs("/include/component/") do
     entity.component[file] = require(file)
     setmetatable(entity.component[file], entity)
 end
 
+-- ===============================================================
 
 -- Creates and returns a list of all entities with _id matching id
 function entity.find(id)
@@ -124,6 +140,11 @@ function entity.update()
     local ent, comp, ak
     for i = entity.enum, 1, -1 do
         ent = entity.list[i]
+        
+        if rawget(ent, "update") then
+            ent.update()
+        end
+        
         for c = 1, ent._comp_enum do
             --comp = entity.component[ent[c]]
             --comp.update(ent)
@@ -174,23 +195,31 @@ end
 
 -- Following code imports the game entities. They are not run until _new_ is called.
 
-local entity_env = setmetatable({
-        chain = {
-            register = entity.register,
-            find = entity.find,
-            new = entity.new
-        }
-    }, {__index = _G})
-
 for i, file in dpairs("include/entity/") do
-    
+  
+    -- Environment default.
+    local entity_env = setmetatable({
+        chain = {
+            register = function() return setmetatable({_draw_count = 0, _drawable = {}, id = file}, entity) end,
+            find = entity.find,
+            new = entity.new,
+            data = entity.data
+        }
+    }, {__index = _G}) -- keep the global table
+
     local func, err
-    func, err = loadfile("include/entity/"..file..".lua")
-    if err then print(err) end
+    func, err = loadfile("include/entity/"..file..".lua") -- load entity files
+    if err then 
+        print(
+            "The entity loader encountered an error while attempting to load \""..file.."\": \n "
+            ..utf8.char(0x21b3)..err.."\n"
+            .."The entity will not be loaded"
+            ) -- check for errors
+    else
+        entity.entity[file] = setfenv(func, entity_env) -- assign the loaded entity function to its table
+    end
     
-    setfenv(func, entity_env)
     
-    entity.entity[file] = func
 end
 
 

@@ -7,6 +7,7 @@ local camera = require("camera")
 local image = require("compositor").image
 local remove = require("compositor").remove
 
+local data_type = require("data_type_def")
 
 function sprite.give(entity)
     
@@ -25,16 +26,27 @@ function sprite.give(entity)
         anim_t = 1,
         anim_dt = 0,
         anim_run = true,
-        active = true
+        active = true,
+        shuffle = false -- allow random sprite shuffling
         }
     return setmetatable(s, sprite)
 end
 
 function sprite:set(img, z)
-    self.img = image[img]
+    if img._type and img._type == data_type.sprite_deck then
+        self.img = img[math.random(img._count)]
+    else
+        self.img = image[img]
+    end
+    
     self.z = z
     sprite.addDrawable(self)
 end
+
+function sprite:setShuffle()
+    
+end
+
 
 function sprite:setOrigin(...)
     local arg = {...}

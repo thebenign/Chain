@@ -22,8 +22,4 @@ love.keyboard.setKeyRepeat(true)
 love.keyboard.setTextInput(false)
 love.graphics.setDefaultFilter("linear", "linear")
 
-function env.getEnv()
-    return env
-end
-
 return env
