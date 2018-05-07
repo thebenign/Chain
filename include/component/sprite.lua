@@ -36,7 +36,11 @@ function sprite:set(img, z)
     if img._type and img._type == data_type.sprite_deck then
         self.img = img[math.random(img._count)]
     else
-        self.img = image[img]
+        if type(img) == "string" then
+            self.img = image[img]
+        elseif img:typeOf("Drawable") then
+            self.img = img
+        end
     end
     
     self.z = z

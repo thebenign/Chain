@@ -4,7 +4,7 @@ velocity.__index = velocity
 local trig = require("trig")
 
 function velocity.give(entity)
-    return setmetatable({dir = 0, mag = 0, fric = 0, max = 12, grav_dir = math.pi/2, grav_mag = .1}, velocity)
+    return setmetatable({dir = 0, mag = 0, fric = 0, max = 12, grav_dir = math.pi/2, grav_mag = 0}, velocity)
 end
 
 function velocity:add(dir, mag)

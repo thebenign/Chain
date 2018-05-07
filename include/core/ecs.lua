@@ -35,6 +35,7 @@ entity.__index = entity
 
 -- Load extra core modules
 local compositor = require("compositor")
+local image = require("image")
 local dpairs = require("dpairs")
 local env = require("env")
 
@@ -203,7 +204,8 @@ for i, file in dpairs("include/entity/") do
             register = function() return setmetatable({_draw_count = 0, _drawable = {}, id = file}, entity) end,
             find = entity.find,
             new = entity.new,
-            data = entity.data
+            data = entity.data,
+            image = image
         }
     }, {__index = _G}) -- keep the global table
 
