@@ -31,6 +31,7 @@ function comp:add()
     if found then
         for i = comp.count, found , -1 do
             comp.list[i+1] = comp.list[i]
+            comp.list[i+1].id = comp.list[i+1].id + 1
         end
         self.id = found
         comp.list[found] = self

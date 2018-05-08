@@ -14,12 +14,10 @@ local enumerate
 
 enumerate = function(dir, ...)
     local level = select(1, ...) and select(1, ...) or image -- if recursion has occured, select the table at the current level, or else just start at the image table
-    print(level)
     local items = love.filesystem.getDirectoryItems(dir)
     
     for i, v in ipairs(items) do -- loop through each item on this level
         local info = love.filesystem.getInfo(dir..v) -- get the item info
-        print(dir..v)
         if info.type == "file" then
             local name = string.match(v, "[%w_-]+") -- string match for file name, discarding extension
             level[name] = love.graphics.newImage(dir..v) -- load the image

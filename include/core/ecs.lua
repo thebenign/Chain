@@ -201,7 +201,7 @@ for i, file in dpairs("include/entity/") do
     -- Environment default.
     local entity_env = setmetatable({
         chain = {
-            register = function() return setmetatable({_draw_count = 0, _drawable = {}, id = file}, entity) end,
+            register = function() return setmetatable({_comp_enum = 0, _draw_count = 0, _drawable = {}, id = file}, entity) end,
             find = entity.find,
             new = entity.new,
             data = entity.data,

@@ -13,7 +13,7 @@ function sprite.give(entity)
     
     local s = {
         entity = entity,
-        color = {255,255,255,255},
+        color = {1,1,1,1},
         scale = 1, 
         rot = 0, 
         origin_x = 0, 
@@ -27,7 +27,8 @@ function sprite.give(entity)
         anim_dt = 0,
         anim_run = true,
         active = true,
-        shuffle = false -- allow random sprite shuffling
+        shuffle = false, -- allow random sprite shuffling
+        blend = "alpha"
         }
     return setmetatable(s, sprite)
 end
@@ -75,6 +76,17 @@ function sprite:setRotation(r)
     self.rot = r
 end
 
+function sprite:setColor(...)
+    local args = {...}
+    if #args == 4 then
+        self.color = args
+    elseif #args == 3 then
+        self.color = {args[1], args[2], args[3], 1}
+    else
+        error("Wrong number of arguments to sprite:setColor, expected 3 or 4", 0)
+    end
+end
+
 function sprite:activate()
     assert(self.img, "Attempt to activate a sprite component which has no image. Use sprite:set() first.")
     sprite.addDrawable(self)
@@ -98,6 +110,8 @@ end
 function sprite:draw()
     local x_off = self.relative and camera.x or 0
     local y_off = self.relative and camera.y or 0
+    love.graphics.setBlendMode(self.blend)
+    love.graphics.setColor(self.color)
     if not self.quad then
         lgDraw(
             self.img, 

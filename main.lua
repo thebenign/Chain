@@ -15,6 +15,9 @@ require("run")
 
 function love.load(arg)
     if arg[#arg] == "-debug" then require("mobdebug").start() end
+    entity.new("background")
+    entity.new("banner")
+    entity.new("spawn")
 end
 
 function love.update(dt)
@@ -25,18 +28,17 @@ function love.update(dt)
         env.dt = env.dt - env.t
         if love.mouse.isDown(1) then
             
-            for i = 1, 5 do
-            local ball = entity.new("ball")
+            --for i = 1, 2 do
+            local ball = entity.new("fish")
             ball.position:set(love.mouse.getPosition())
-            end
+            --end
         end
         
     end
 end
 
 function love.mousepressed(x, y, b, t)
-    local ball = entity.new("ball")
-    ball.position:set(x,y)
+
 end
 
 
