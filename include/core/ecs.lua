@@ -168,7 +168,8 @@ function entity.update()
                 end
             end
             if ent._comp_enum == 0 then
-                entity.list[i] = entity.list[entity.enum]
+
+        entity.list[i] = entity.list[entity.enum]
                 entity.enum = entity.enum - 1
             end
         end
@@ -195,6 +196,7 @@ function entity.draw()
 end
 
 -- Following code imports the game entities. They are not run until _new_ is called.
+local cwd = love.filesystem.getSource()
 
 for i, file in dpairs("include/entity/") do
   
@@ -210,7 +212,7 @@ for i, file in dpairs("include/entity/") do
     }, {__index = _G}) -- keep the global table
 
     local func, err
-    func, err = loadfile("include/entity/"..file..".lua") -- load entity files
+    func, err = loadfile(cwd.."/include/entity/"..file..".lua") -- load entity files
     if err then 
         print(
             "The entity loader encountered an error while attempting to load \""..file.."\": \n "
