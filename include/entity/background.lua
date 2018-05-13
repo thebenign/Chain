@@ -2,9 +2,9 @@ local bg = chain.register()
 
 bg:has("sprite", "position")
 
-local batch = love.graphics.newSpriteBatch(chain.image.pattern23, 1000, "dynamic")
+local batch = love.graphics.newSpriteBatch(chain.image.pattern23, 16, "dynamic")
 
-for y = 0, 3 do
+for y = 0, 2 do
     for x = 0, 3 do
         batch:add(x*256, y*256)
     end

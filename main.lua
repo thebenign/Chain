@@ -18,6 +18,7 @@ function love.load(arg)
     entity.new("background")
     entity.new("banner")
     entity.new("spawn")
+    entity.new("sub")
     world.startMusic(1)
 end
 

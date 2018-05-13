@@ -2,11 +2,11 @@ local banner = chain.register()
 
 banner:has("sprite", "position")
 
-banner.position:set(450, 128)
+banner.position:set(450, 100)
 
-banner.sprite:set(chain.image["banner-01"], 0)
+banner.sprite:set(chain.image["banner-nobg-glow"], 0)
 banner.sprite:setOrigin("center")
-banner.sprite.color = {1,1,1,.05}
-banner.sprite.scale = .3
+banner.sprite.color = {1,1,1,.8}
+banner.sprite.scale = .8
 
 return banner
