@@ -1,4 +1,4 @@
-<img  src="https://github.com/thebenign/chain/blob/master/chain_7-7.png?raw=true">  
+<img  src="https://github.com/thebenign/chain/blob/master/data/icons/banner-glow.png?raw=true">  
 
 # Chain Game Development Suite
 
