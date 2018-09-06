@@ -28,6 +28,7 @@ function collider:give()
             collides_with = {}
         }
         , mt)
+      
 end
 
 return collider

@@ -42,6 +42,7 @@ local env = require("env")
 -- Load data types
 entity.data.map = require("data_map")
 entity.data.spriteDeck = require("sprite_deck")
+entity.data.chainAssign = require("chain_assign")
 local utf8 = require("utf8")
 
 -- Load components
@@ -225,6 +226,5 @@ for i, file in dpairs("include/entity/") do
     
     
 end
-
 
 return entity
