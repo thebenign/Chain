@@ -4,7 +4,7 @@ function love.conf(t)
     t.window.vsync=true
     t.window.width=900
     t.window.height=600
-    t.window.title="Chain"
+    t.window.title="Chain - New Game"
     
     t.accelerometerjoystick = false
     t.modules.joystick = false

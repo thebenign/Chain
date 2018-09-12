@@ -41,31 +41,6 @@ function comp:add()
     end
     
     comp.count = comp.count + 1
-    
-    --[[
-    local new_list = {}
-    local found = false
-
-    for i = 1, comp.count do
-        if z < comp.list[i].z or found then
-            new_list[i] = comp.list[i - (found and 1 or 0)]
-            new_list[i].id = i
-        else
-            new_list[i] = self
-            self.id = i
-            found = true
-        end
-    end
-    comp.count = comp.count + 1
-    if not found then
-        new_list[comp.count] = self
-        self.id = comp.count
-    else
-        new_list[comp.count] = comp.list[comp.count - 1]
-        new_list[comp.count].id = comp.count
-    end
-    comp.list = new_list
-    ]]
 end
 
 

@@ -43,6 +43,7 @@ local env = require("env")
 entity.data.map = require("data_map")
 entity.data.spriteDeck = require("sprite_deck")
 entity.data.chainAssign = require("chain_assign")
+entity.data.vec2 = require("vec2")
 local utf8 = require("utf8")
 
 -- Load components

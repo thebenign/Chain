@@ -14,6 +14,7 @@ function trig.theta(x1, y1, x2, y2)
 end
 
 function trig.translate(x, y, dir, mag)
+    -- returns x and y as two values
     return x + trig.cos(dir)*mag, y + trig.sin(dir)*mag
 end
 
