@@ -9,7 +9,7 @@ sub.sprite:setOrigin("center")
 sub.sprite.scale = .25
 
 sub.velocity.fric = 0.01
-sub.velocity.max = 2
+sub.velocity.max = 20
 
 local bub_time = sub.timer(6, true)
 local moving = false
@@ -24,22 +24,38 @@ end
 
 
 sub.control:on("right", function()
-        sub.velocity:add(0, .1)
+        sub.velocity:add(0, .5)
         moving = true
     end)
 sub.control:on("left", function()
-        sub.velocity:add(math.pi, .1)
+        sub.velocity:add(math.pi, .5)
         moving = true
     end)
 sub.control:on("up", function()
-        sub.velocity:add(math.rad(270), .1)
+        sub.velocity:add(math.rad(270), .5)
         moving = true
     end)
 sub.control:on("down", function()
-        sub.velocity:add(math.pi/2, .1)
+        sub.velocity:add(math.pi/2, .5)
         moving = true
     end)
 
 sub.control:onRelease({"up","down","left","right"}, function() moving = false end)
+
+function sub.update()
+  
+  if sub.position.x < -100 then
+    sub.position.x = 1000
+  end
+  if sub.position.x > 1000 then
+    sub.position.x = -100
+  end
+  if sub.position.y < -50 then
+    sub.position.y = 680
+  end
+  if sub.position.y > 680 then
+    sub.position.y = -50
+  end
+end
 
 return sub

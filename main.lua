@@ -6,6 +6,7 @@ package.path = package.path .. ";"
 ..include_path.."entity/?.lua;"
 ..include_path.."helper/?.lua;"
 ..include_path.."data/?.lua;"
+..include_path.."geometry/?.lua;"
 
 local env = require("env")
 local world = require("world")
@@ -15,11 +16,11 @@ require("run")
 
 function love.load(arg)
     if arg[#arg] == "-debug" then require("mobdebug").start() end
-    entity.new("background")
-    entity.new("banner")
-    entity.new("spawn")
-    entity.new("sub")
-    world.startMusic(1)
+    entity.new("guy")
+    --entity.new("banner")
+    --entity.new("spawn")
+    --entity.new("sub")
+    --world.startMusic(1)
 end
 
 function love.update(dt)
@@ -28,13 +29,14 @@ function love.update(dt)
         world.update()
         entity.update()
         env.dt = env.dt - env.t
-        if love.mouse.isDown(1) then
-            
-            --for i = 1, 2 do
-            local ball = entity.new("fish")
-            ball.position:set(love.mouse.getPosition())
-            --end
-        end
+        
+        --[[if love.mouse.isDown(1) then
+            ]]
+            for i = 1, 10 do
+              local guy = entity.new("guy")
+              --guy.position:set(math.random(900), math.random(600))
+            end--[[
+        end]]
         
     end
 end

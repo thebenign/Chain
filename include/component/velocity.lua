@@ -33,4 +33,9 @@ function velocity:set(dir, mag)
     self.mag = mag
 end
 
+function velocity:toSegment()
+  return {x = math.cos(self.dir) * self.mag, y = math.sin(self.dir) * self.mag}
+end
+
+
 return velocity

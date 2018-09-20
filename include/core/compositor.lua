@@ -1,3 +1,7 @@
+-- The compositor accepts a drawable reference and adds it to the draw system.
+-- For the sake of speed, z sorting is done for every entry at the time of addition.
+-- This guarantees a nearly sorted list at all times and gives us linear sort times.
+
 local comp = {
     list = {},
     count = 0,

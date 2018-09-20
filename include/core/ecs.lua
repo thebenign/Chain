@@ -23,15 +23,16 @@ if ma < 11 then
 end
 
 -- Construct the core
-local entity = setmetatable({
-    enum = 0,
-    list = {},
-    component = {},
-    entity = {},
-    data = {},
+local chain = setmetatable({
+    enum = 0,         -- enumerate the entities for faster iteration
+    list = {},        -- entity instance reference table
+    component = {},   -- component table
+    entity = {},      -- table of loaded entity files
+    data = {},        -- data type table
+    geometry = {},    -- geometry table
     }, {__call = function(t, name) return t.new(name) end})
 
-entity.__index = entity
+chain.__index = chain
 
 -- Load extra core modules
 local compositor = require("compositor")
@@ -40,27 +41,30 @@ local dpairs = require("dpairs")
 local env = require("env")
 
 -- Load data types
-entity.data.map = require("data_map")
-entity.data.spriteDeck = require("sprite_deck")
-entity.data.chainAssign = require("chain_assign")
-entity.data.vec2 = require("vec2")
+chain.data.map = require("data_map")
+chain.data.spriteDeck = require("sprite_deck")
+chain.data.chainAssign = require("chain_assign")
+chain.data.vec2 = require("vec2")
 local utf8 = require("utf8")
+
+-- Load Geometries
+chain.geometry.aabb = require("aabb")
 
 -- Load components
 for i, file in dpairs("/include/component/") do
-    entity.component[file] = require(file)
-    setmetatable(entity.component[file], entity)
+    chain.component[file] = require(file)
+    setmetatable(chain.component[file], chain)
 end
 
 -- ===============================================================
 
--- Creates and returns a list of all entities with _id matching id
-function entity.find(id)
+-- _find_ Creates and returns a list of all entities which match _id_
+function chain.find(id)
     local list = {}
     local found = false
-    for i = 1, entity.enum do
-        if entity.list[i]._id == id then
-            list[#list+1] = entity.list[i]
+    for i = 1, chain.enum do
+        if chain.list[i]._id == id then
+            list[#list+1] = chain.list[i]
             found = true
         end
     end
@@ -69,7 +73,7 @@ end
 
 -- This is the function which creates a new instance of an entity.
 -- There must be an entity script called _name.lua_
-function entity.new(name,...)
+function chain.new(name,...)
     local reg_ent = {id = name}
     local arg = {...}
     local parent = arg[1] or nil
@@ -78,20 +82,20 @@ function entity.new(name,...)
         {
             register = function()
                 reg_ent.parent = parent
-                return setmetatable(reg_ent, entity)
+                return setmetatable(reg_ent, chain)
             end,
             new = function(name)
-                return entity.new(name, reg_ent)
+                return chain.new(name, reg_ent)
             end
-        }, entity)
+        }, chain)
     
     --local ent = require(name)(stack_back)
     local fenv = getfenv()
     fenv._id = name
 
-    local ent = entity.entity[name]()
-    entity.enum = entity.enum + 1
-    entity.list[entity.enum] = ent
+    local ent = chain.entity[name]()
+    chain.enum = chain.enum + 1
+    chain.list[chain.enum] = ent
 
 
     return ent
@@ -99,35 +103,36 @@ end
 
 -- Must be called at the top of your entity file to be able to use
 -- the features of the ECS. Your entity will not function without it.
-function entity.register()
-    return setmetatable({_draw_count = 0, _drawable = {}}, entity)
+function chain.register()
+    return setmetatable({_draw_count = 0, _drawable = {}}, chain)
 end
 
 -- Call this method to destroy an entity. Entities can only destroy themselves.
-function entity:destroy()
+function chain:destroy()
     self._d = true
 end
 
 -- Call this method after _register_ to acquire components.
-function entity:has(...)
+function chain:has(...)
     local args = {...}
     self._comp_enum = #args
     local fenv = getfenv()
     
     for i, v in ipairs(args) do
-        assert(entity.component[v], '"'..fenv._id..'" tried to acquire component "'..v..'" which does not exist')
-        self[v] = entity.component[v].give(self)
+        assert(chain.component[v], '"'..fenv._id..'" tried to acquire component "'..v..'" which does not exist')
+        self[v] = chain.component[v].give(self)
         self[i] = v
     end
 end
 
-function entity:addDrawable()
+
+function chain:addDrawable()
     --self._draw_count = self._draw_count + 1
     --self._drawable[self._draw_count] = typeof
     compositor.add(self)
 end
 
-function entity:setID(id)
+function chain:setID(id)
     self._id = id
 end
 
@@ -139,29 +144,29 @@ end
 -- If an entity requests destruction, it is flagged as non-existant, so you don't
 -- have to worry about it continuing to do things after you destroy it,
 -- even if the components are still cleaning up.
-function entity.update()
+function chain.update()
     local ent, comp, ak
-    for i = entity.enum, 1, -1 do
-        ent = entity.list[i]
+    for i = chain.enum, 1, -1 do
+        ent = chain.list[i]
         
         if rawget(ent, "update") then
             ent.update()
         end
         
         for c = 1, ent._comp_enum do
-            --comp = entity.component[ent[c]]
+            --comp = chain.component[ent[c]]
             --comp.update(ent)
             
-            if rawget(entity.component[ent[c]], "update") then
-                entity.component[ent[c]].update(ent)
+            if rawget(chain.component[ent[c]], "update") then
+                chain.component[ent[c]].update(ent)
             end
             
         end
         
         if ent._d then
-            local enum = entity.list[i]._comp_enum
+            local enum = chain.list[i]._comp_enum
             for c = enum, 1, -1 do
-                comp = entity.component[ent[c]]
+                comp = chain.component[ent[c]]
                 if rawget(comp, "destroy") then
                     ak = comp.destroy(ent)
                     if ak then ent:removeComponent(c) end
@@ -171,15 +176,15 @@ function entity.update()
             end
             if ent._comp_enum == 0 then
 
-        entity.list[i] = entity.list[entity.enum]
-                entity.enum = entity.enum - 1
+        chain.list[i] = chain.list[chain.enum]
+                chain.enum = chain.enum - 1
             end
         end
         
     end
 end
 
-function entity:removeComponent(comp)
+function chain:removeComponent(comp)
     self[comp] = self[self._comp_enum]
     self._comp_enum = self._comp_enum - 1
     
@@ -187,13 +192,13 @@ end
 
 -- Call this function from your love.draw()
 -- It handles all the drawable compositing so you don't have to.
-function entity.draw()
+function chain.draw()
     if env.full_redraw then love.graphics.clear(love.graphics.getBackgroundColor()) end
     compositor.draw()
-    --entity.component.particle.draw()
-    --entity.component.gui.draw()
-    --entity.component.collider.draw()
-    love.graphics.print("Entities: "..entity.enum, 32, 32)
+    --chain.component.particle.draw()
+    --chain.component.gui.draw()
+    --chain.component.collider.draw()
+    love.graphics.print("Entities: "..chain.enum, 32, 32)
     love.graphics.print("FPS: "..love.timer.getFPS(), 32, 48)
 end
 
@@ -205,10 +210,11 @@ for i, file in dpairs("include/entity/") do
     -- Environment default.
     local entity_env = setmetatable({
         chain = {
-            register = function() return setmetatable({_comp_enum = 0, _draw_count = 0, _drawable = {}, id = file}, entity) end,
-            find = entity.find,
-            new = entity.new,
-            data = entity.data,
+            register = function() return setmetatable({_comp_enum = 0, _draw_count = 0, _drawable = {}, id = file}, chain) end,
+            find = chain.find,
+            new = chain.new,
+            data = chain.data,
+            geometry = chain.geometry,
             image = image
         }
     }, {__index = _G}) -- keep the global table
@@ -222,10 +228,10 @@ for i, file in dpairs("include/entity/") do
             .."The entity will not be loaded"
             ) -- check for errors
     else
-        entity.entity[file] = setfenv(func, entity_env) -- assign the loaded entity function to its table
+        chain.entity[file] = setfenv(func, entity_env) -- assign the loaded entity function to its table
     end
     
     
 end
 
-return entity
+return chain

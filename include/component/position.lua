@@ -2,11 +2,11 @@ local position = {}
 position.__index = position
 
 function position.give(entity)
-    return setmetatable({x = 0, y = 0, a = 0, relative = false, camera = true}, position)
+    return setmetatable({x = 0, y = 0, a = 0, is_relative = false, camera = true}, position)
 end
 
 function position:relative(bool) -- set position relative to old position
-    self.relative = bool
+    self.is_relative = bool
 end
 
 function position:cameraRelative(bool) -- set position relative to world space (true) or screen space (false)
@@ -14,7 +14,7 @@ function position:cameraRelative(bool) -- set position relative to world space (
 end
 
 function position:set(x, y)
-  if self.relative then
+  if self.is_relative then
     self.x = self.x + x
     self.y = self.y + y
   else
