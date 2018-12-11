@@ -2,10 +2,13 @@ local particle = {
     enum = 0,
     entity_map = {},
     linked_list = {},
-    img = love.graphics.newImage("/assets/particle/nova_mask.png"),
-    camera = require("camera"),
-    hsl2rgb = require("hsl2rgb")
+    img = love.graphics.newImage("/assets/particle/pixel.png"),
+    camera = require("core.camera"),
+    hsl2rgb = require("helper.hsl2rgb")
 }
+
+local comp_add = require("system.compositor").add
+local comp_rem = require("system.compositor").remove
 
 particle.halfw = particle.img:getWidth()/2
 particle.halfh = particle.img:getHeight()/2
@@ -81,7 +84,10 @@ function particle:newSystem(...)
     end
     system.x = arg[1] or 0
     system.y = arg[2] or 0
+    system.z = -1
     system_container[count] = system
+    
+    comp_add(system)
     return system
 end
 
@@ -91,8 +97,8 @@ function particle.update(entity)
         if systems[i].following then
             systems[i].x = entity.position.x
             systems[i].y = entity.position.y
-        elseif systems[i]._fFunction then
-            systems[i].x, systems[i].y = systems[i]:_fFunction()
+        elseif systems[i].following then
+            systems[i].x, systems[i].y = systems[i].following.position.x, systems[i].following.position.y
         end
         systems[i]:instanceUpdate()
     end
@@ -177,14 +183,14 @@ function particle._remove(entity)
     particle.linked_list[id].parent.particle.list_id = id
     particle.enum = particle.enum - 1
     particle.entity_map[entity] = nil
-    print(collectgarbage("count"))
+    --print(collectgarbage("count"))
 end
 
 
 -- User facing functions
 
-function particle:follow()
-    self.following = true
+function particle:follow(entity)
+    self.following = entity
 end
 
 function particle:followFunction(x, y)

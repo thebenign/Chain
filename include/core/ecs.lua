@@ -16,6 +16,11 @@
 
 ]]
 
+-- temporary project target
+local project_target = "shooter"
+
+-- 
+
 -- Love2D version 11 is required
 local ma, mi, re, code = love.getVersion()
 if ma < 11 then
@@ -34,25 +39,31 @@ local chain = setmetatable({
 
 chain.__index = chain
 
+
+
+-- Load Systems
+local compositor = require("system.compositor")
+local collider = require("system.collider")
+
 -- Load extra core modules
-local compositor = require("compositor")
-local image = require("image")
-local dpairs = require("dpairs")
-local env = require("env")
+local image = require("core.image")
+local dpairs = require("helper.dpairs")
+local camera = require("core.camera")
+
+chain.env = require("core.env")
+chain.world = require("core.world")
+
 
 -- Load data types
-chain.data.map = require("data_map")
-chain.data.spriteDeck = require("sprite_deck")
-chain.data.chainAssign = require("chain_assign")
-chain.data.vec2 = require("vec2")
+chain.data.map = require("data.data_map")
+chain.data.spriteDeck = require("data.sprite_deck")
+chain.data.chainAssign = require("data.chain_assign")
+chain.data.vec2 = require("data.vec2")
 local utf8 = require("utf8")
-
--- Load Geometries
-chain.geometry.aabb = require("aabb")
 
 -- Load components
 for i, file in dpairs("/include/component/") do
-    chain.component[file] = require(file)
+    chain.component[file] = require("component."..file)
     setmetatable(chain.component[file], chain)
 end
 
@@ -145,22 +156,25 @@ end
 -- have to worry about it continuing to do things after you destroy it,
 -- even if the components are still cleaning up.
 function chain.update()
+    
+    -- experimental system section
+    collider.update()
+    
+    
+    --
+    
     local ent, comp, ak
     for i = chain.enum, 1, -1 do
         ent = chain.list[i]
         
-        if rawget(ent, "update") then
-            ent.update()
-        end
-        
         for c = 1, ent._comp_enum do
-            --comp = chain.component[ent[c]]
-            --comp.update(ent)
-            
             if rawget(chain.component[ent[c]], "update") then
                 chain.component[ent[c]].update(ent)
             end
-            
+        end
+        
+        if rawget(ent, "update") then
+            ent.update()
         end
         
         if ent._d then
@@ -176,7 +190,7 @@ function chain.update()
             end
             if ent._comp_enum == 0 then
 
-        chain.list[i] = chain.list[chain.enum]
+                chain.list[i] = chain.list[chain.enum]
                 chain.enum = chain.enum - 1
             end
         end
@@ -193,7 +207,7 @@ end
 -- Call this function from your love.draw()
 -- It handles all the drawable compositing so you don't have to.
 function chain.draw()
-    if env.full_redraw then love.graphics.clear(love.graphics.getBackgroundColor()) end
+    if chain.env.full_redraw then love.graphics.clear(love.graphics.getBackgroundColor()) end
     compositor.draw()
     --chain.component.particle.draw()
     --chain.component.gui.draw()
@@ -205,7 +219,7 @@ end
 -- Following code imports the game entities. They are not run until _new_ is called.
 local cwd = love.filesystem.getSource()
 
-for i, file in dpairs("include/entity/") do
+for i, file in dpairs("include/entity/"..project_target.."/") do
   
     -- Environment default.
     local entity_env = setmetatable({
@@ -215,12 +229,13 @@ for i, file in dpairs("include/entity/") do
             new = chain.new,
             data = chain.data,
             geometry = chain.geometry,
-            image = image
+            image = image,
+            camera = camera
         }
     }, {__index = _G}) -- keep the global table
 
     local func, err
-    func, err = loadfile(cwd.."/include/entity/"..file..".lua") -- load entity files
+    func, err = loadfile(cwd.."/include/entity/"..project_target.."/"..file..".lua") -- load entity files
     if err then 
         print(
             "The entity loader encountered an error while attempting to load \""..file.."\": \n "

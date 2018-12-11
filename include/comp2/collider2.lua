@@ -1,22 +1,17 @@
 -- collider version 2: good luck
 
--- import the spatial hash and world size
-local sh = require("sh")
-local world = require("world").getSize()
-
 -- define the collider
 local collider = {
   list = {},
-  enum = {}
+  count = {},
+  type_list = {["rectangle"] = 1, ["aabb"] = 2, ["circle"] = 3, ["point"] = 4, ["segment"] = 5}
   }
 
+-- chain give
 function collider:give()
-  collider.enum = collider.enum + 1
-  collider.list[collider.enum] = self
-  
-  -- create the unique collider handler for the entity
+
   local c = {
-    id = collider.enum, -- Entity's position in the collider list
+    id = collider.count, -- Entity's position in the collider list
     cells = {},         -- Entity's reference to cells it spans in spatial hash
     collides_with = {}, -- Explicit list of entities this entity collides with
     is_solid = true,    -- Solid objects are implicitly globally collidable
@@ -25,7 +20,12 @@ function collider:give()
 end
 
 function collider:update()
-  
+    local pair_list = {}
+    for i = 1, #self.cells do
+        for j = 1, #collider.list[self.cells[i]] do
+            
+    end
+    
 end
 
 

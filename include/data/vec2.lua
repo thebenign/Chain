@@ -42,4 +42,17 @@ function vec2:dot(b)
   return self.x * b.x + self.y * b.y
 end
 
+function vec2:normalize()
+  local mag = math.sqrt(self.x^2 + self.y^2)
+  return vec2.new(self.x/mag, self.y/mag)
+end
+
+function vec2:perp()
+  return vec2.new(self.y, -self.x)
+end
+
+function vec2.segment(a, b)
+    local obj = {a=a, b=b, dir={b[1]-a[1], b[2]-a[2]}}
+    obj[
+
 return vec2

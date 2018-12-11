@@ -3,11 +3,11 @@ local sprite = {}
 sprite.__index = sprite
 
 local lgDraw = love.graphics.draw
-local camera = require("camera")
-local image = require("compositor").image
-local remove = require("compositor").remove
+local camera = require("core.camera")
+local image = require("system.compositor").image
+local remove = require("system.compositor").remove
 
-local data_type = require("data_type_def")
+local data_type = require("data.data_type_def")
 
 function sprite.give(entity)
     
@@ -108,8 +108,8 @@ function sprite:destroy()
 end
 
 function sprite:draw()
-    local x_off = self.relative and camera.x or 0
-    local y_off = self.relative and camera.y or 0
+    local x_off = self.entity.position.camera and camera.x or 0
+    local y_off = self.entity.position.camera and camera.y or 0
     love.graphics.setBlendMode(self.blend)
     love.graphics.setColor(self.color)
     if not self.quad then
@@ -117,7 +117,7 @@ function sprite:draw()
             self.img, 
             self.entity.position.x-x_off,
             self.entity.position.y-y_off, 
-            self.rot,
+            self.entity.position.a,
             self.scale,
             self.scale,
             self.origin_x,

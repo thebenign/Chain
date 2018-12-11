@@ -1,7 +1,7 @@
 local map = {
     map_data = {},
     map_batch = {},
-    load_map = require("load_map")
+    load_map = require("helper.load_map")
     }
 map.__index = map
 

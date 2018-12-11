@@ -1,6 +1,6 @@
 -- spatial hash
 
-local world = require("world")
+local world = require("core.world")
 
 -- === Helper Functions ===
 
@@ -44,8 +44,8 @@ function shash:getCellFromGeometry(geometry)
     local cell_x = math.floor(point[1].x / self.cell_size)
     local cell_y = math.floor(point[1].y / self.cell_size)
     
-    local range_x = math.floor(point[4].x / self.cell_size)
-    local range_y = math.floor(point[4].y / self.cell_size)
+    local range_x = math.floor(point[3].x / self.cell_size)
+    local range_y = math.floor(point[3].y / self.cell_size)
     
     for y = cell_y, range_y do
       for x = cell_x, range_x do
@@ -53,6 +53,6 @@ function shash:getCellFromGeometry(geometry)
         cells[count] = collapse(self, {x, y})
       end
     end
-    
+    cells.count = count
     return cells
 end

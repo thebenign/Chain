@@ -1,7 +1,8 @@
 -- Axis Aligned Bounding Box object
 
-local vec2 = require("vec2")
-local compositor = require("compositor")
+local vec2 = require("data.vec2")
+local compositor = require("system.compositor")
+local camera = require("core.camera")
 
 --local aabb = setmetatable({}, {__call = function(t, x, y, w, h) return t.new(x, y, w, h) end})
 local aabb = {}
@@ -21,7 +22,7 @@ function aabb:set(x_off, y_off, w, h)
   self.hw = w/2
   self.hh = h/2
   self.z = 100
-  --compositor.add(self)
+  compositor.add(self)
 end
 
 function aabb:center(is_centered)
@@ -44,12 +45,14 @@ function aabb:getPoints()
 end
 
 function aabb:update()
-  self.x = self.entity.position.x + self.x_off
-  self.y = self.entity.position.y + self.y_off
+  self.x = self.entity.position.x + self.x_off - (self.is_centered and self.hw or 0)
+  self.y = self.entity.position.y + self.y_off - (self.is_centered and self.hh or 0)
 end
 
 function aabb:draw()
-  love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
+    local x_off = self.entity.position.camera and camera.x or 0
+    local y_off = self.entity.position.camera and camera.y or 0
+    love.graphics.rectangle("line", self.x - x_off, self.y - y_off, self.w, self.h)
 end
 
 return aabb

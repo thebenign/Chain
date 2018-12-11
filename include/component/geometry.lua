@@ -1,6 +1,9 @@
 local geo_list = {
-  ["aabb"] = require("aabb")
+  ["aabb"] = require("geometry.aabb"),
+  ["rectangle"] = require("geometry.rectangle")
 }
+
+local compRemove = require("system.compositor").remove
 
 local geo = {}
 
@@ -16,10 +19,16 @@ end
 function geo:new(geo_type)
     -- increment counter
     self.count = self.count + 1
-
     self[self.count] = geo_list[geo_type].new()
     self[self.count].entity = self.entity
     return self[self.count]
+end
+
+function geo:destroy()
+    for i = 1, self.geometry.count do
+        compRemove(self.geometry[i].id)
+    end
+    return true
 end
 
 function geo:remove()

@@ -22,7 +22,7 @@ enumerate = function(dir, ...)
             local name = string.match(v, "[%w_-]+") -- string match for file name, discarding extension
             level[name] = love.graphics.newImage(dir..v) -- load the image
             
-        elseif info.type == "directory" then
+        elseif info.type == "directory" and not string.match(v, "^%.") then
             level[v] = {}  -- create the next level for the image table
             enumerate(dir..v.."/", level[v])  -- recursively call the enumerator to continue loading the next level
         end

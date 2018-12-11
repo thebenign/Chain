@@ -1,6 +1,6 @@
 local world = {
-    camera = require("camera"),
-    music = require("music"),
+    camera = require("core.camera"),
+    music = require("core.music"),
     global_volume = .5,
     volume_lt = {["add"]=1, ["sub"]=-1},
     w = 2600,

@@ -1,6 +1,6 @@
 -- return a table of sprites to be used for random drawing
-local img = require("compositor").image
-local data_type = require("data_type_def")
+local img = require("system.compositor").image
+local data_type = require("data.data_type_def")
 
 return function(...)
     local arg = {...}

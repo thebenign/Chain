@@ -3,10 +3,10 @@ local camera = {
     y = 0,
     rolloff = .6,
     follow_distance = 32,
-    distance = require("trig").distance,
-    theta = require("trig").theta,
-    translate = require("trig").translate,
-    env = require("env")
+    distance = require("helper.trig").distance,
+    theta = require("helper.trig").theta,
+    translate = require("helper.trig").translate,
+    env = require("core.env")
 }
 
 function camera.follow(entity)

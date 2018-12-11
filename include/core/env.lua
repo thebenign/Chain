@@ -10,7 +10,7 @@ local env = {
 
 -- Some defaults for input and other things. Placing initialization code here may be a good idea.
 
-require("slam")
+--require("slam")
 
 io.stdout:setvbuf("no")  -- Don't buffer console output
 love.graphics.setBackgroundColor(env.background_color)
@@ -20,6 +20,6 @@ env.window_w, env.window_h = love.window.getMode()
 
 love.keyboard.setKeyRepeat(true)
 love.keyboard.setTextInput(false)
-love.graphics.setDefaultFilter("linear", "linear")
+love.graphics.setDefaultFilter("nearest", "nearest")
 
 return env

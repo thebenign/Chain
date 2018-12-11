@@ -1,5 +1,5 @@
 local sfx = {
-    sound_table = require("sound"),
+    sound_table = require("core.sound"),
     listener = false
     }
 sfx.__index = sfx

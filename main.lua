@@ -1,22 +1,11 @@
-local include_path = love.filesystem.getSource().."/include/"
 
-package.path = package.path .. ";"
-..include_path.."core/?.lua;"
-..include_path.."component/?.lua;"
-..include_path.."entity/?.lua;"
-..include_path.."helper/?.lua;"
-..include_path.."data/?.lua;"
-..include_path.."geometry/?.lua;"
+local chain = require("chain")
 
-local env = require("env")
-local world = require("world")
-local entity = require("ecs")
 
-require("run")
 
 function love.load(arg)
     if arg[#arg] == "-debug" then require("mobdebug").start() end
-    entity.new("guy")
+    chain.new("ship")
     --entity.new("banner")
     --entity.new("spawn")
     --entity.new("sub")
@@ -24,28 +13,14 @@ function love.load(arg)
 end
 
 function love.update(dt)
-    env.dt = env.dt + dt
-    if env.dt >= env.t then
-        world.update()
-        entity.update()
-        env.dt = env.dt - env.t
-        
-        --[[if love.mouse.isDown(1) then
-            ]]
-            for i = 1, 10 do
-              local guy = entity.new("guy")
-              --guy.position:set(math.random(900), math.random(600))
-            end--[[
-        end]]
-        
+    chain.env.dt = chain.env.dt + dt
+    if chain.env.dt >= chain.env.t then
+        chain.world.update()
+        chain.update()
+        chain.env.dt = chain.env.dt - chain.env.t
     end
 end
 
-function love.mousepressed(x, y, b, t)
-
-end
-
-
 function love.draw()
-    entity.draw()
+    chain.draw()
 end

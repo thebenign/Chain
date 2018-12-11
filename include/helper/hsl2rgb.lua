@@ -11,5 +11,5 @@ return function(h,s,l,a)
         elseif h < 5 then r,g,b = x,0,c
         else              r,g,b = c,0,x
     end
-return {(r+m)*255,(g+m)*255,(b+m)*255,a}
+return {(r+m),(g+m),(b+m),a}
 end

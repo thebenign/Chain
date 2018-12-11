@@ -1,9 +1,9 @@
 -- label
 
 -- import some stuff
-local camera = require("camera")
-local remove = require("compositor").remove
-local default_font = require("world").default_font
+local camera = require("core.camera")
+local remove = require("system.compositor").remove
+local default_font = require("core.world").default_font
 
 local label = {}
 
@@ -43,17 +43,18 @@ local shape = {
 function label.give(entity)
   return setmetatable(
     {
+      entity = entity,
       count = 0, 
       position = entity.position
     }, component_metatable
   )
 end
 
-function label.new(entity, text, ...)
-  entity.count = entity.count + 1
+function label.new(component, text, ...)
+  component.count = component.count + 1
   local arg = {...}
   
-  entity[entity.count] =
+  component[component.count] =
   setmetatable(
     {
       lines = {},
@@ -69,13 +70,13 @@ function label.new(entity, text, ...)
       y = 0,
       rot = 0,
       draw = label.draw,
-      position = entity.position
+      entity = component.entity
     }, instance_metatable
   )
-  entity[entity.count]:setText(text or "label")
+  component[component.count]:setText(text or "label")
   
-  label.addDrawable(entity[entity.count])
-  return entity[entity.count]
+  label.addDrawable(component[component.count])
+  return component[component.count]
 end
 
 function label:destroy()
@@ -87,11 +88,16 @@ end
 
 
 function label:draw()
+    local adj_pos = {
+        x = self.entity.position.x + self.x - (self.entity.position.camera and camera.x or 0),
+        y = self.entity.position.y + self.y - (self.entity.position.camera and camera.y or 0)
+    }
+    
   love.graphics.setColor(self.bg_color)
   love.graphics.rectangle(
     "fill",
-    self.position.x + self.x,
-    self.position.y + self.y,
+    adj_pos.x,
+    adj_pos.y,
     self.w,
     self.h,
     6, 6
@@ -101,8 +107,8 @@ function label:draw()
   
   love.graphics.printf(
     self.text,
-    self.position.x + self.x + self.pad,
-    self.position.y + self.y + self.pad,
+    adj_pos.x + self.pad,
+    adj_pos.y + self.pad,
     self.w - self.pad, 
     self.text_align
   )
