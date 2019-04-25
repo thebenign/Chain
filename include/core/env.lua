@@ -14,7 +14,10 @@ local env = {
 
 io.stdout:setvbuf("no")  -- Don't buffer console output
 love.graphics.setBackgroundColor(env.background_color)
-print("Set window icon success: "..tostring(love.window.setIcon(env.icon)))
+local ico = love.window.setIcon(env.icon)
+if env.debug then
+    print(ico and "Window icon changed successfully" or "Unable to change window icon")
+end
 
 env.window_w, env.window_h = love.window.getMode()
 

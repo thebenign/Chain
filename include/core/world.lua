@@ -7,7 +7,7 @@ local world = {
     h = 2600,
     state = 0,
     state_script = {},
-    default_font = love.graphics.newFont("data/fonts/KenVector Future.ttf", 12)
+    default_font = love.graphics.newFont("data/fonts/KenVector Future.ttf", 14)
 }
 
 love.graphics.setFont(world.default_font)
@@ -27,7 +27,7 @@ function world.setSize(w, h)
 end
 
 function world.getSize()
-    return {world.w, world.h}
+    return {w = world.w, h = world.h}
 end
 
 function world.camFollow(entity)

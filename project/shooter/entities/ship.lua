@@ -16,7 +16,7 @@ end
 
 chain.camera.follow(ship)
 
-ship.sprite:set("basic_ship", 1)
+ship.sprite:set(chain.image.basic_ship, 1)
 ship.sprite:setOrigin("center")
 ship.sprite:setScale(2)
 

@@ -22,9 +22,10 @@ function velocity:add(dir, mag)
 end
 
 function velocity:update()
-    --velocity.add(self.velocity, self.velocity.grav_dir, self.velocity.grav_mag)
+    velocity.add(self.velocity, self.velocity.grav_dir, self.velocity.grav_mag)
     
     self.position.x, self.position.y = trig.translate(self.position.x, self.position.y, self.velocity.dir, self.velocity.mag)
+    self.position._dirty = true
     
     self.velocity.mag = self.velocity.mag - ((self.velocity.mag > self.velocity.fric) and self.velocity.fric or 0)
     

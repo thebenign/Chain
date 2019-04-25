@@ -2,7 +2,7 @@ local position = {}
 position.__index = position
 
 function position.give(entity)
-    return setmetatable({x = 0, y = 0, a = 0, is_relative = false, camera = true}, position)
+    return setmetatable({x = 0, y = 0, a = 0, is_relative = false, camera = true, _dirty = true}, position)
 end
 
 function position:relative(bool) -- set position relative to old position
@@ -21,6 +21,7 @@ function position:set(x, y)
     self.x = x
     self.y = y
   end
+  self._dirty = true
 end
 
 function position:get()

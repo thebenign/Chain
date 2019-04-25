@@ -1,9 +1,13 @@
 -- 2D vector class
 
-local vec2 = setmetatable({}, {
+local vec2 = setmetatable({}, {    
     __call = function(t, x, y)
-      return t.new(x, y)
+        return t.new(x, y)
     end,
+})
+
+local vec2mt = {
+    __index = vec2,
     
     __add = function(a, b)
       return vec2.new(a.x + b.x, a.y + b.y)
@@ -14,7 +18,15 @@ local vec2 = setmetatable({}, {
     end,
     
     __mul = function(a, b)
-      return vec2.new(a.x * b.x, a.y * b.y)
+        local x, y
+        if type(b) == "table" then
+            x = b.x
+            y = b.y
+        else
+            x = b
+            y = b
+        end
+      return vec2.new(a.x * x, a.y * y)
     end,
     
     __unm = function(a)
@@ -24,13 +36,10 @@ local vec2 = setmetatable({}, {
     __eq = function(a, b)
       return (a.x == b.x and a.y == b.y)
     end,
-    
-    
-  })
-vec2.__index = vec2
+  }
 
 vec2.new = function(x, y)
-  return setmetatable({x = x, y = y}, vec2)
+  return setmetatable({x = x, y = y}, vec2mt)
 end
 
 function vec2:set(x, y)
@@ -47,12 +56,8 @@ function vec2:normalize()
   return vec2.new(self.x/mag, self.y/mag)
 end
 
-function vec2:perp()
+function vec2:getNormal()
   return vec2.new(self.y, -self.x)
 end
-
-function vec2.segment(a, b)
-    local obj = {a=a, b=b, dir={b[1]-a[1], b[2]-a[2]}}
-    obj[
 
 return vec2

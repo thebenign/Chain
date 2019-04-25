@@ -44,7 +44,7 @@ function sprite:set(img, z)
         end
     end
     
-    self.z = z
+    self.z = z or 1
     sprite.addDrawable(self)
 end
 

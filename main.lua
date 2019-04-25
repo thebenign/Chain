@@ -1,15 +1,11 @@
 
 local chain = require("chain")
 
-
+local block = {}
 
 function love.load(arg)
     if arg[#arg] == "-debug" then require("mobdebug").start() end
-    chain.new("ship")
-    --entity.new("banner")
-    --entity.new("spawn")
-    --entity.new("sub")
-    --world.startMusic(1)
+    chain.load("raindrop")
 end
 
 function love.update(dt)

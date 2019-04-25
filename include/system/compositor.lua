@@ -5,8 +5,6 @@
 local comp = {
     list = {},
     count = 0,
-    image = require("core.image"),
-    batch = {}
 }
 comp.__index = comp
 

@@ -16,40 +16,65 @@
 
 ]]
 
--- temporary project target
-local project_target = "shooter"
-
+-- Chain data structure
 -- 
+local chain = {
+        
+    import = {
+        scene = {},
+        entity = {},
+        image = {},
+        map = {},
+        sound = {},
+    },
+    state = {
+        project = "",
+        scene = "",
+        entity_count = 0,
+        entity = {},
+        map = {},
+    },
+    
+    component = {},
+    
+    system = {
+        collider = {},
+        compositor = {},
+        map = {},
+    },
+    
+    data = {}
+}
 
--- Love2D version 11 is required
-local ma, mi, re, code = love.getVersion()
-if ma < 11 then
-  error("The version of Love2D installed is lower than 11.0.0 but Chain requires version 11.0.0 or higher. Update your version of Love2D.", 0)
-end
 
--- Construct the core
-local chain = setmetatable({
-    enum = 0,         -- enumerate the entities for faster iteration
-    list = {},        -- entity instance reference table
-    component = {},   -- component table
-    entity = {},      -- table of loaded entity files
-    data = {},        -- data type table
-    geometry = {},    -- geometry table
-    }, {__call = function(t, name) return t.new(name) end})
 
 chain.__index = chain
 
-
+-- ===============================================================
+-- =================== Chain definitions here ====================
+-- ===============================================================
 
 -- Load Systems
 local compositor = require("system.compositor")
-local collider = require("system.collider")
+local collider = require("system.collider-system")
 
 -- Load extra core modules
-local image = require("core.image")
+
+-- importers
+local importImages = require("import.import_images")
+local importScenes = require("import.import_scenes")
+local importMaps = require("import.import_maps")
+local importEntities = require("import.import_entities")
+
+
+-- Loaders. Invoking the loader for an imported resource is what actually makes it active in the world.
+--local loadMap = require("load.map")
+
+-- helpers
 local dpairs = require("helper.dpairs")
 local camera = require("core.camera")
 
+-- environment stuff
 chain.env = require("core.env")
 chain.world = require("core.world")
 
@@ -59,6 +84,9 @@ chain.data.map = require("data.data_map")
 chain.data.spriteDeck = require("data.sprite_deck")
 chain.data.chainAssign = require("data.chain_assign")
 chain.data.vec2 = require("data.vec2")
+chain.data.hash = require("data.hash")
+
+-- This is just so we can display special characters in the error messages
 local utf8 = require("utf8")
 
 -- Load components
@@ -67,6 +95,8 @@ for i, file in dpairs("/include/component/") do
     setmetatable(chain.component[file], chain)
 end
 
+-- ===============================================================
+-- =================== Chain functions here ======================
 -- ===============================================================
 
 -- _find_ Creates and returns a list of all entities which match _id_
@@ -82,8 +112,10 @@ function chain.find(id)
     return found and list or nil
 end
 
+
+
 -- This is the function which creates a new instance of an entity.
--- There must be an entity script called _name.lua_
+-- There must be an entity script called _name_.lua
 function chain.new(name,...)
     local reg_ent = {id = name}
     local arg = {...}
@@ -104,18 +136,12 @@ function chain.new(name,...)
     local fenv = getfenv()
     fenv._id = name
 
-    local ent = chain.entity[name]()
-    chain.enum = chain.enum + 1
-    chain.list[chain.enum] = ent
+    local ent = chain.import.entity[name]()
+    chain.state.entity_count = chain.state.entity_count + 1
+    chain.state.entity[chain.state.entity_count] = ent
 
 
     return ent
-end
-
--- Must be called at the top of your entity file to be able to use
--- the features of the ECS. Your entity will not function without it.
-function chain.register()
-    return setmetatable({_draw_count = 0, _drawable = {}}, chain)
 end
 
 -- Call this method to destroy an entity. Entities can only destroy themselves.
@@ -143,29 +169,24 @@ function chain:addDrawable()
     compositor.add(self)
 end
 
-function chain:setID(id)
-    self._id = id
-end
-
 -- Call this function from your love.update() function.
 -- Entity instances are updated by calling their components as methods.
 -- If the entity requested destruction, it sends destroy requests to components.
 -- The component may respond immediately or do some cleanup first.
 -- Once all the components have cleaned up, the entity intance is destroyed.
--- If an entity requests destruction, it is flagged as non-existant, so you don't
+-- After an entity requests destruction, it is flagged as non-existant, so you don't
 -- have to worry about it continuing to do things after you destroy it,
 -- even if the components are still cleaning up.
 function chain.update()
-    
-    -- experimental system section
-    collider.update()
-    
-    
-    --
-    
+
+    -- update all entities
     local ent, comp, ak
-    for i = chain.enum, 1, -1 do
-        ent = chain.list[i]
+    for i = chain.state.entity_count, 1, -1 do
+        ent = chain.state.entity[i]
+        
+        -- When checking entities and components for update methods, we need to bear in mind their metatables.
+        -- Because Chain also has an update method, a regular check will ascend the metatable and return chain.update.
+        -- Using rawget ignores metatables
         
         for c = 1, ent._comp_enum do
             if rawget(chain.component[ent[c]], "update") then
@@ -178,8 +199,7 @@ function chain.update()
         end
         
         if ent._d then
-            local enum = chain.list[i]._comp_enum
-            for c = enum, 1, -1 do
+            for c = ent._comp_enum, 1, -1 do
                 comp = chain.component[ent[c]]
                 if rawget(comp, "destroy") then
                     ak = comp.destroy(ent)
@@ -190,12 +210,15 @@ function chain.update()
             end
             if ent._comp_enum == 0 then
 
-                chain.list[i] = chain.list[chain.enum]
-                chain.enum = chain.enum - 1
+                chain.state.entity[i] = chain.state.entity[chain.enum]
+                chain.state.entity_count = chain.state.entity_count - 1
             end
         end
         
     end
+    
+    -- update systems
+    collider.update()
 end
 
 function chain:removeComponent(comp)
@@ -209,44 +232,48 @@ end
 function chain.draw()
     if chain.env.full_redraw then love.graphics.clear(love.graphics.getBackgroundColor()) end
     compositor.draw()
-    --chain.component.particle.draw()
-    --chain.component.gui.draw()
-    --chain.component.collider.draw()
-    love.graphics.print("Entities: "..chain.enum, 32, 32)
-    love.graphics.print("FPS: "..love.timer.getFPS(), 32, 48)
+    collider.draw()
+    if chain.env.debug then
+        love.graphics.print("Entities: "..chain.enum, 32, 32)
+        love.graphics.print("FPS: "..love.timer.getFPS(), 32, 48)
+    end
 end
 
--- Following code imports the game entities. They are not run until _new_ is called.
-local cwd = love.filesystem.getSource()
-
-for i, file in dpairs("include/entity/"..project_target.."/") do
-  
-    -- Environment default.
-    local entity_env = setmetatable({
-        chain = {
-            register = function() return setmetatable({_comp_enum = 0, _draw_count = 0, _drawable = {}, id = file}, chain) end,
-            find = chain.find,
-            new = chain.new,
-            data = chain.data,
-            geometry = chain.geometry,
-            image = image,
-            camera = camera
-        }
-    }, {__index = _G}) -- keep the global table
-
-    local func, err
-    func, err = loadfile(cwd.."/include/entity/"..project_target.."/"..file..".lua") -- load entity files
-    if err then 
-        print(
-            "The entity loader encountered an error while attempting to load \""..file.."\": \n "
-            ..utf8.char(0x21b3)..err.."\n"
-            .."The entity will not be loaded"
-            ) -- check for errors
+function chain.loadScene(scene)
+    if chain.import.scene[scene] then
+        local env = setmetatable({
+                scene = {},
+                chain = {
+                    new = chain.new,
+                    data = chain.data,
+                    camera = camera,
+                    --loadMap = 
+                }
+                }, {__index = _G})
+        setfenv(chain.import.scene[scene], env)
+        chain.import.scene[scene]()
     else
-        chain.entity[file] = setfenv(func, entity_env) -- assign the loaded entity function to its table
+        error("Attempting to load scene \""..scene..".lua\" but no scene file was imported by this name.\nIf the scene file exists, please check the console for import errors.", 0)
     end
+end
+
+-- Load a project. Call this early in _main.lua_, before or inside _love.load()_
+function chain.load(project)
+    -- Set up project and import
+    assert(type(project)=="string", "Incorrect parameter type to Chain.load(). Expected String")
+    local file_info = love.filesystem.getInfo("/project/"..project.."/")
+    assert(file_info and file_info.type == "directory", "Unable to load project \""..project.."\". No project folder was found by that name.\nPlease ensure there is a folder named \""..project.."\" in the project directory.")
+    chain.state.project = project
+    love.window.setTitle(project:gsub("^%l", string.upper))
+    chain.import.scene = importScenes(project)
+    chain.import.image = importImages(project)
+    chain.import.map = importMaps(project)
+    chain.import.entity = importEntities(project, chain)
+    --importEntities()
     
-    
+    -- Start the game
+    local init_params = require("project."..project..".init")
+    chain.loadScene(init_params.scene)
 end
 
 return chain

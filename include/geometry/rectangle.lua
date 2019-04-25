@@ -5,6 +5,28 @@ local vec2 = require("data.vec2")
 local rectangle = {}
 rectangle.__index = rectangle
 
+local setVertices = function(x, y, w, h, ox, oy, r)
+    -- calculate vertice list
+    local vertList = {
+        vec2.new(x - ox, y - oy),
+        vec2.new(x + (w - ox), y - oy),
+        vec2.new(x + (w - ox), y + (h - oy)),
+        vec2.new(x - ox, y + (h - oy))
+    }
+    -- rotate vertices by r
+    local s, c, px, py, nx, ny
+    s = math.sin(r)
+    c = math.cos(r)
+    for i = 1, 4 do
+        px = vertList[i].x
+        py = vertList[i].y
+        
+        vertList[i].x = x + c * (px - x) - s * (py - y)
+        vertList[i].y = y + s * (px - x) + c * (py - y)
+    end
+    return vertList
+end
+
 local getVertices = function(x, y, w, h, ox, oy, r)
     -- calculate vertice list
     local vertList = {
@@ -28,21 +50,28 @@ local getVertices = function(x, y, w, h, ox, oy, r)
 end
 
 function rectangle.new()
-    return setmetatable({}, rectangle)
+    return setmetatable({visible = false}, rectangle)
 end
 
-function rectangle:set(x, y, w, h, ox, oy, r)
+function rectangle:set(x, y, w, h, ox, oy, r,...)
+    local vis = {...}
     self.x = x; self.y = y
     self.w = w; self.h = h
+    self.old_r = nil -- if set, updates rotation of rectangle
     self.r = r
     self.z = 100
     self.ox = ox; self.oy = oy
     self.v = getVertices(x, y, w, h, ox, oy, r)
-    compAdd(self)
+    if vis[1] then compAdd(self) end
 end
 
-function rectangle:getPoints()
-    return {self.x, self.y, self.x+self.w, self.y, self.x, self.y+self.h, self.x+self.w, self.y+self.h}
+-- returns the vert list as a vec2 list
+function rectangle:asVec2()
+    local list = {}
+    for i = 0, 3 do
+        list[i+1] = vec2(self.v[i*2+1], self.v[i*2+2])
+    end
+    return list
 end
 
 function rectangle:rotate(r)
@@ -79,7 +108,8 @@ end
 
 function rectangle:project(axis)
     axis = axis:normalize()
-    local min = 
+    --local min = 
+end
 
 function rectangle:draw()
     local x_off = self.entity.position.camera and camera.x or 0

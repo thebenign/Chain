@@ -17,7 +17,7 @@ fish.velocity.grav_mag = .03
 fish.velocity.grav_dir = math.rad(0)
 fish.velocity.max = 4
 
-fish.sprite.rot = fish.velocity.dir
+fish.position.a = fish.velocity.dir
 
 local lt = fish.timer()
 
@@ -29,6 +29,7 @@ end
 
 function fish.update()
     fish.sprite:setRotation(fish.velocity.dir)
+    fish.position.a = fish.velocity.dir
     --loc:setText(string.format("Fishy boi\nx = %i", fish.position.x))
     
   if fish.position.x < -100 then
