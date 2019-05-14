@@ -10,8 +10,6 @@ local world = {
     default_font = love.graphics.newFont("data/fonts/KenVector Future.ttf", 14)
 }
 
-love.graphics.setFont(world.default_font)
-
 function world.changeState(state)
     world.state = state
     

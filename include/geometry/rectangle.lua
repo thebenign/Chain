@@ -49,20 +49,19 @@ local getVertices = function(x, y, w, h, ox, oy, r)
     return vertList
 end
 
-function rectangle.new()
-    return setmetatable({visible = false}, rectangle)
+function rectangle.new(x, y)
+    return setmetatable({visible = false, x = x, y = y}, rectangle)
 end
 
-function rectangle:set(x, y, w, h, ox, oy, r,...)
-    local vis = {...}
-    self.x = x; self.y = y
+function rectangle:set(w, h, ox, oy, r,...)
+    self.visible = select(1, ...) or false
     self.w = w; self.h = h
     self.old_r = nil -- if set, updates rotation of rectangle
     self.r = r
     self.z = 100
     self.ox = ox; self.oy = oy
-    self.v = getVertices(x, y, w, h, ox, oy, r)
-    if vis[1] then compAdd(self) end
+    self.v = getVertices(self.x, self.y, w, h, ox, oy, r)
+    if self.visible then compAdd(self) end
 end
 
 -- returns the vert list as a vec2 list

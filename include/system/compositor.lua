@@ -2,6 +2,10 @@
 -- For the sake of speed, z sorting is done for every entry at the time of addition.
 -- This guarantees a nearly sorted list at all times and gives us linear sort times.
 
+-- Dev goal: attempt to build a spatial hash around this principle to sort within buckets
+-- Such that drawables display in correct z sequence and have passive viewport occlusion.
+local camera = require("core.camera")
+
 local comp = {
     list = {},
     count = 0,
@@ -16,14 +20,17 @@ end
 
 function comp.draw()
     for i = comp.count, 1, -1 do
+        love.graphics.scale(camera.scale)
         comp.list[i]:draw()
+        love.graphics.origin()
     end
 end
 
 function comp:add()
-    
+    if not self.z then self.z = 1 end
     local found = false
     
+    -- linear time sort [O(n)]
     for i = 1, comp.count do
         if comp.list[i].z < self.z then
             found = i

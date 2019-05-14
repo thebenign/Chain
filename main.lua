@@ -1,20 +1,16 @@
-
 local chain = require("chain")
 
-local block = {}
-
 function love.load(arg)
-    if arg[#arg] == "-debug" then require("mobdebug").start() end
-    chain.load("raindrop")
+    if arg[#arg] == "-debug" then
+        require("mobdebug").start()
+        require("mobdebug").coro()
+    end
+    
+    chain.load("shooter")
 end
 
 function love.update(dt)
-    chain.env.dt = chain.env.dt + dt
-    if chain.env.dt >= chain.env.t then
-        chain.world.update()
-        chain.update()
-        chain.env.dt = chain.env.dt - chain.env.t
-    end
+    chain.update(dt)
 end
 
 function love.draw()

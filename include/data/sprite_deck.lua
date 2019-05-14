@@ -1,5 +1,4 @@
 -- return a table of sprites to be used for random drawing
-local img = require("system.compositor").image
 local data_type = require("data.data_type_def")
 
 return function(...)
@@ -9,8 +8,8 @@ return function(...)
     assert(arg, "Attempting to create a sprite deck with no sprites. A sprite deck must include at least one sprite")
     
     for i = 1, #arg do
-        assert(img[arg[i]], "No image named \""..arg[i].."\" was found.")
-        deck[i] = img[arg[i]]
+        assert(arg[i], "Argument "..i.." passed to sprite deck refers to an image which does not exist.")
+        deck[i] = arg[i]
     end
     
     deck._type = data_type.sprite_deck

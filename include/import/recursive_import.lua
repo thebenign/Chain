@@ -16,6 +16,7 @@ return function(dir, table, ...)
     end
     -- recursion coroutine
     local function traverse(dir, ...)
+        -- node is the current level of the table. If there is no second parameter passed, it is simply _table_
         local node = select(1, ...) and select(1, ...) or table
         
         local items = love.filesystem.getDirectoryItems(dir)
@@ -23,16 +24,20 @@ return function(dir, table, ...)
         for i, v in ipairs(items) do
             local info = love.filesystem.getInfo(dir..v)
             
-            if not string.match(v, "^%.") then -- ignore hidden files/folders
+            -- ignore hidden files/folders
+            if not string.match(v, "^%.") then
                 -- if the item is a file, match the filetype filter values
                 if info.type == "file" and (filtered and filter[string.match(v, "[^%.]+$")] or not filtered) then
                         -- string match for file name, discarding extension
                         local name = string.match(v, "[%w%s_-]+")
                         -- yield the coroutine, returning the values for table insertion
                         coroutine.yield(node, name, dir..v)
+                -- if the item is a directory...
                 elseif info.type == "directory" then
-                    node[v] = {}  -- create the next node in the table
-                    traverse(dir..v.."/", node[v])  -- recursively call traverse
+                    -- create the next node in the table
+                    node[v] = {}
+                    -- tail call, descending the directory, add second parameter as the new table reference
+                    traverse(dir..v.."/", node[v])
                 end
             end
         end

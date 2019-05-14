@@ -1,3 +1,4 @@
 
---local map = chain.loadMap("01")
-chain.new("hero")
+local map = chain.loadMap(chain.map["01"], 5)
+local hero = chain.new("hero")
+chain.camera.follow(hero)

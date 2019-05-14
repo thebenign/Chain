@@ -2,11 +2,11 @@ local ship = chain.register()
 
 ship:has("control", "sprite", "position", "velocity", "label", "particle", "geometry", "timer", "collider")
 
-ship.position:set(32, 32)
+ship.position:set(200, 200)
 
 local rect = ship.geometry:new("rectangle")
 
-rect:set(200,200,32,32,16,16, 0)
+rect:set(50,50,25,25, 0)
 
 local body_collider = ship.collider:using(rect)
 
@@ -16,15 +16,12 @@ end
 
 chain.camera.follow(ship)
 
-ship.sprite:set(chain.image.basic_ship, 1)
+ship.sprite:set(chain.image.blue_ship, 50)
 ship.sprite:setOrigin("center")
-ship.sprite:setScale(2)
+ship.sprite:setScale(.5, .5)
 
-ship.velocity.max = 4
+ship.velocity.max = 5
 ship.velocity.fric = .05
-ship.velocity.grav_dir = math.rad(90)
---ship.velocity.grav_mag = .1
-
 
 --[[local debug_label = ship.label("confetti ship")
 debug_label:setWidth(140)
@@ -35,17 +32,18 @@ local part = ship.particle:newSystem(200,200)
 part:follow(ship)
 part:set({spread = math.rad(3), a = math.pi})
 part.spread = math.rad(30)
-part.max_s = 5
-part.lt = 30
-part.dist = 4
-part.scale = 1
-part.rot_s = 0.4
-part.fric = .5
-part.hsl = {150, 255, 100, 255}
-part.pps = 5
+part.min_s = 1
+part.max_s = 2
+part.lt = 15
+part.dist = 25
+part.scale = .3
+part.rot_s = 0.1
+part.fric = .1
+part.hsl = {150, 255, 170, 255}
+part.pps = 2
 part.run = false
 
-local bt = ship.timer:new(8)
+local bt = ship.timer:new(3)
 local can_shoot = true
 
 bt.call = function()
@@ -76,10 +74,9 @@ ship.control:on("right", function()
 
 ship.control:on("a", function()
         if can_shoot then
-            local bullet = chain.new("bullet")
-            bullet.position:set(ship.position:get())
-            bullet.velocity:set(ship.position.a, 8)
-            bullet.position.a = ship.position.a
+            local bullet = ship:newChild("bullet")
+
+            
             can_shoot = false
             bt:start()
         end
@@ -90,7 +87,7 @@ ship.control:on("a", function()
 
 function ship.update()
     rect.r = ship.position.a
-    part.hsl[1] = math.random()*255
+    --part.hsl[1] = math.random()*255
     part.a = ship.position.a-math.pi
     --ship.velocity.fric = 0
     

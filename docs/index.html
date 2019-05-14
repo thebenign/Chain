@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>ecs</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>ecs</code></h1>
+<p>
+<h1>Entity Component System</h1>
+
+<p>Entities are defined in lua scripts located in the <strong>.projectproject_name/entities/</strong> directory.</p>
+</p>
+<p> <br/>
+They are checked for errors and loaded as a chunk into Chain's <strong>import</strong> table, but are not run. <br/>
+<strong>chain.new</strong> runs the entity script and creates a new instance of an entity in Chain's <strong>state</strong> table.  </p>
+
+<p>Components are defined within the <strong>./include/component/</strong> directory. <br/>
+These are imported as a chunk in Chain's <strong>component</strong> table and are run immediately. <br/>
+Each component must include the functions <strong>give</strong> and <strong>update</strong> <br/>
+When the Chain <strong>update</strong> function is called, all entity instances call method <strong>update</strong> within their owned components <br/>
+as methods of the instance.  </p>
+
+<p>Systems are defined within the <strong>./include/system/</strong> directory. <br/>
+They are imported with <strong>require()</strong> and therefore are run immediately. <br/>
+Systems directly update the engine state within <strong>chain.state</strong> and are responsible for the majority of <br/>
+logic and state progression. With access to all entity instances, systems can make complex interactions <br/>
+between entities (i.e. collision detection). <br/>
+The order in which systems execute is important to bear in mind when including it in the update flow, <br/>
+otherwise changes may occur in a strange order which may not reflect an accurate game state.  </p>
+
+<h2>Game Loop Flow</h2>
+<p><strong>chain.update(dt)</strong> should be called within the <strong>love.update(dt)</strong> callback. <br/>
+This function is run on a fixed time-step defined in <strong>./include/core/env.lua</strong> <br/>
+Chain then steps through each entity instance and updates their component methods. <br/>
+The majority of systems execute after this point, performing their main <strong>update</strong> function.  </p>
+
+<p><strong>chain.draw()</strong> should be called within the <strong>love.draw()</strong> callback. <br/>
+Drawing is handled with the Compositor system. This system is not part of the game loop, <br/>
+and not bound to a fixed time-step. Drawing occurs whenever the graphics card reports a v-sync.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#chain.new">chain.new (name[, parent])</a></td>
+	<td class="summary">Returns a new instance of an entity</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#chain.update">chain.update (dt)</a></td>
+	<td class="summary">Updates the game state</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#chain.draw">chain.draw ()</a></td>
+	<td class="summary">Draw the scene</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#chain.loadScene">chain.loadScene (scene)</a></td>
+	<td class="summary">Load a new scene</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#chain.load">chain.load (project)</a></td>
+	<td class="summary">Load a project.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "chain.new"></a>
+    <strong>chain.new (name[, parent])</strong>
+    </dt>
+    <dd>
+    Returns a new instance of an entity
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><span class="type">entity</span></span>
+         The entity script to load
+        </li>
+        <li><span class="parameter">parent</span>
+            <span class="types"><span class="type">instance</span></span>
+         Gives the new instance a reference to a parent instance
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        New entity instance
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "chain.update"></a>
+    <strong>chain.update (dt)</strong>
+    </dt>
+    <dd>
+    Updates the game state
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dt</span>
+         delta time
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Nothing
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "chain.draw"></a>
+    <strong>chain.draw ()</strong>
+    </dt>
+    <dd>
+    Draw the scene
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "chain.loadScene"></a>
+    <strong>chain.loadScene (scene)</strong>
+    </dt>
+    <dd>
+    Load a new scene
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">scene</span>
+         An imported scene script
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "chain.load"></a>
+    <strong>chain.load (project)</strong>
+    </dt>
+    <dd>
+    Load a project.  Call this early in <em>main.lua</em>, before or inside <em>love.load()</em>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">project</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         The name of the project to load
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-05-12 04:38:42 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

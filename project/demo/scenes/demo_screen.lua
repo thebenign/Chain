@@ -1,0 +1,5 @@
+chain.new("background")
+chain.new("banner")
+chain.new("map_controller")
+chain.new("spawn")
+chain.new("sub")

@@ -1,11 +1,16 @@
-local position = {}
+
+local position = {
+    list = chain.data.unordered_list(),
+    data_list = chain.data.dol("x", "y", "a", "mov_relative", "cam_relative", "dirty")
+    }
 position.__index = position
 
 function position.give(entity)
-    return setmetatable({x = 0, y = 0, a = 0, is_relative = false, camera = true, _dirty = true}, position)
+    local t = {x = 0, y = 0, a = 0, is_relative = false, camera = true, _dirty = true}
+    return setmetatable(t, position)
 end
 
-function position:relative(bool) -- set position relative to old position
+function position:relative(bool) -- set position relative to last position
     self.is_relative = bool
 end
 

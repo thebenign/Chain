@@ -97,6 +97,7 @@ function hash:remove(obj)
         local working_cell = self.cell[obj.cell_i[i]]
         working_cell[working_cell.n].cell_n[obj.cell_i[i]] = obj.cell_n[obj.cell_i[i]]
         working_cell[obj.cell_n[obj.cell_i[i]]] = working_cell[working_cell.n]
+        working_cell[working_cell.n] = nil
         working_cell.n = working_cell.n - 1
     end
     
